@@ -15,7 +15,7 @@ int pos;
 
 
 //===========================================================================
-#servo
+//servo
 void Timer2_init(void)
 {
     RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
