@@ -1,20 +1,3 @@
-/**
-  ******************************************************************************
-  * @file    main.c
-  * @author  Weili An, Niraj Menon
-  * @date    Feb 3, 2024
-  * @brief   ECE 362 Lab 6 Student template
-  ******************************************************************************
-*/
-
-/*******************************************************************************/
-
-// Fill out your username, otherwise your completion code will have the 
-// wrong username!
-const char* username = "yang2775";
-
-/*******************************************************************************/ 
-
 #include "stm32f0xx.h"
 
 void set_char_msg(int, char);
@@ -23,6 +6,50 @@ void game(void);
 void internal_clock();
 void check_wiring();
 void autotest();
+void GPIO_Init(void);
+void Timer2_init(void);
+void delay(int ms);
+void servo_write(uint8_t angle);
+void rotate(void);
+int pos;
+
+
+//===========================================================================
+#servo
+void Timer2_init(void)
+{
+    RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+    RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+
+
+    GPIOA->MODER &= ~(0xFF);
+    GPIOA->MODER |= 0xAA;
+    GPIOA->AFR[0] &= ~(0xFFFF);
+    GPIOA->AFR[0] |= 0x2222;
+
+
+    // TIM2->PSC = 479;
+    // TIM2->ARR = 1999;
+    TIM2->PSC = 759;
+    TIM2->ARR = 209;
+    TIM2->CCMR1 |= TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1;
+    TIM2->CCMR1 &= ~TIM_CCMR1_OC1M_0;
+    TIM2->CCER |= TIM_CCER_CC1E;
+    TIM2->CR1 |= TIM_CR1_CEN;
+}
+
+
+void rotate(void)
+{
+    TIM2->CCR1 = 15; // set the servo to 90 degrees
+    //TIM2->CCR1 = 5;
+    //15 is 0 degree
+    //0 is 90 degree
+    //nano_wait(1000000000); // wait for 1 second
+    //TIM2->CCR1 = 200; // set the servo to 180 degrees
+}
+//===========================================================================
+
 
 //===========================================================================
 // Configure GPIOC
@@ -296,7 +323,8 @@ void spi1_enable_dma(void) {
 
 int main(void) {
     internal_clock();
-
+    Timer2_init();
+    rotate();
     msg[0] |= font['E'];
     msg[1] |= font['C'];
     msg[2] |= font['E'];
