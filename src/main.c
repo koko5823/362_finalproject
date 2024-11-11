@@ -339,53 +339,5 @@ int main(void) {
     // setup keyboard
     init_tim7();
 
-    // LED array Bit Bang
-//#define BIT_BANG
-#if defined(BIT_BANG)
-    setup_bb();
-    drive_bb();
-#endif
 
-    // Direct SPI peripheral to drive LED display
-//#define SPI_LEDS
-#if defined(SPI_LEDS)
-    init_spi2();
-    spi2_setup_dma();
-    spi2_enable_dma();
-    init_tim15();
-    show_keys();
-#endif
-
-    // LED array SPI
-//#define SPI_LEDS_DMA
-#if defined(SPI_LEDS_DMA)
-    init_spi2();
-    spi2_setup_dma();
-    spi2_enable_dma();
-    show_keys();
-#endif
-
-    // SPI OLED direct drive
-//#define SPI_OLED
-#if defined(SPI_OLED)
-    init_spi1();
-    spi1_init_oled();
-    spi1_display1("Hello again,");
-    spi1_display2(username);
-#endif
-
-    // SPI
-//#define SPI_OLED_DMA
-#if defined(SPI_OLED_DMA)
-    init_spi1();
-    spi1_init_oled();
-    spi1_setup_dma();
-    spi1_enable_dma();
-#endif
-
-    // Uncomment when you are ready to generate a code.
-    autotest();
-
-    // Game on!  The goal is to score 100 points.
-    game();
 }
