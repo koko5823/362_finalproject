@@ -11,6 +11,13 @@ void Timer2_init(void);
 void delay(int ms);
 void servo_write(uint8_t angle);
 void rotate(void);
+void init_spi1();
+void spi_cmd(unsigned int data);
+void spi_data(unsigned int data);
+void spi1_init_oled();
+void spi1_display1(const char *string);
+void spi1_display2(const char *string);
+
 int pos;
 
 
@@ -50,7 +57,51 @@ void rotate1(void)//rotate to 90 degrees
     TIM2->CCR1 = 250; // set the servo to 180 degrees
 }
 
+void init_spi1() {
+    RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+    GPIOA->MODER &= ~0xc000fc00;
+    GPIOA->MODER |= 0x8000a800;
+    GPIOA->AFR[1] &= ~0xf0000000;
+    GPIOA->AFR[0] &= ~0xfff00000;
+    RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
+    SPI1->CR1 &= ~SPI_CR1_SPE;
+    SPI1->CR1 |= SPI_CR1_MSTR | SPI_CR1_BR;
+    SPI1->CR2 = 0x900;
+    SPI1->CR2 |=  SPI_CR2_SSOE | SPI_CR2_NSSP;
+    SPI1->CR1 |= SPI_CR1_SPE;
+}
 
+void spi_cmd(unsigned int data) {
+    while(!(SPI1->SR & SPI_SR_TXE)) {}
+    SPI1->DR = data;
+}
+void spi_data(unsigned int data) {
+    spi_cmd(data | 0x200);
+}
+void spi1_init_oled() {
+    nano_wait(1000000);
+    spi_cmd(0x38);
+    spi_cmd(0x08);
+    spi_cmd(0x01);
+    nano_wait(2000000);
+    spi_cmd(0x06);
+    spi_cmd(0x02);
+    spi_cmd(0x0c);
+}
+void spi1_display1(const char *string) {
+    spi_cmd(0x02);
+    while(*string != '\0') {
+        spi_data(*string);
+        string++;
+    }
+}
+void spi1_display2(const char *string) {
+    spi_cmd(0xc0);
+    while(*string != '\0') {
+        spi_data(*string);
+        string++;
+    }
+}
 
 int main(void) {
     internal_clock();
